@@ -92,7 +92,7 @@ if __name__ == "__main__":
             description="""
             HDF5 Creathon extract tool.
             Use this tool to extract signal segments from HDF5 file and their annotations from ARTF file.
-            Outputs signal segments as text files in the output directory.
+            Outputs signal segments as numpy text files in the output directory.
             Files are named as {signal}_{start_idx}_{is_artefact}.txt if artefacts are provided, otherwise {signal}_{start_idx}.txt where 0 is not an artefact and 1 is an artefact.
             """)
     parser.add_argument('-fh', type=str, help='Path to HDF5 file', required=True)
