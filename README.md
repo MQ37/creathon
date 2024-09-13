@@ -4,7 +4,7 @@ This repository contains a set of utilities for working with HDF5 files.
 
 Raw signals are stored in HDF5 files. These can be loaded using the functions provided in the `lib/funcs.py` module. When a signal is annotated, it is split into segments of 10 seconds. Each segment is given a label based on whether an artefact is present in the segment. The artefact information is stored in a separate XML file with the same name as the HDF5 file, but with an `.artf` extension. See the provided tools for more information on how to work with the data at a low level.
 
-## Installation
+## Installation (Linux/MacOS)
 **Python 3.9+ is required**
 
 1. Clone and enter the repository:
@@ -19,6 +19,26 @@ source venv/bin/activate
 ```
 3. Install the requirements:
 ```bash
+pip install -r requirements.txt
+```
+
+## Installation (Windows)
+**Python 3.9+ is required**
+
+1. Clone and enter the repository:
+```
+git clone https://github.com/MQ37/creathon.git
+cd creathon
+```
+
+2. Create and activate Python virtual environment:
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Install the requirements:
+```
 pip install -r requirements.txt
 ```
 
