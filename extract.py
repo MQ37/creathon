@@ -8,6 +8,7 @@ import argparse
 import os
 import matplotlib.pyplot as plt
 
+WINDOW_SIZE_SEC = 10
 
 def main(args):
     hdf5_filepath = args.fh
@@ -16,30 +17,37 @@ def main(args):
     include_artefacts = artf_filename is not None
 
     if not os.path.exists(output_dir):
-        raise FileNotFoundError(f"Output directory {output_dir} does not exist")
+        os.makedirs(output_dir, exist_ok=True)
 
     # load hdf5
     icp, abp = read_hdf5(hdf5_filepath)
 
-    # get sample rates
-    icp_sr = int(icp["sample_rate"])
-    abp_sr = int(abp["sample_rate"])
-    assert icp_sr == abp_sr
+    if args.s == 'icp':
+        # get sample rates
+        sr = int(icp["sample_rate"])
 
-    # get start times
-    icp_start_time_s = icp["start_time_s"]
-    abp_start_time_s = abp["start_time_s"]
+        # get start times
+        start_time_s = icp["start_time_s"]
 
-    # get signals
-    icp_signal = icp["signal"]
-    abp_signal = abp["signal"]
+        # get signals
+        signal = icp["signal"]
 
-    # trim signals to be divisible by window size
-    WINDOW_SIZE_SEC = 10
-    icp_remainder = int(len(icp) % (icp_sr * WINDOW_SIZE_SEC))
-    abp_remainder = int(len(abp) % (abp_sr * WINDOW_SIZE_SEC))
-    icp_signal = icp_signal[:-icp_remainder]
-    abp_signal = abp_signal[:-abp_remainder]
+        # trim signals to be divisible by window size
+        remainder = int(len(signal) % (sr * WINDOW_SIZE_SEC))
+        signal = signal[:-remainder]
+    elif args.s == 'abp':
+        # get sample rates
+        sr = int(abp["sample_rate"])
+
+        # get start times
+        start_time_s = abp["start_time_s"]
+
+        # get signals
+        signal = abp["signal"]
+
+        # trim signals to be divisible by window size
+        remainder = int(len(signal) % (sr * WINDOW_SIZE_SEC))
+        signal = signal[:-remainder]
 
     if include_artefacts:
         # load artefacts
@@ -47,44 +55,58 @@ def main(args):
 
         # get artefacts
         global_artefacts = artefacts["global_artefacts"]
-        icp_artefacts = artefacts["icp_artefacts"]
-        abp_artefacts = artefacts["abp_artefacts"]
 
-        icp_artefacts = icp_artefacts + global_artefacts
-        abp_artefacts = abp_artefacts + global_artefacts
+        if args.s == 'icp':
+            artefacts = artefacts["icp_artefacts"]
+            artefacts = artefacts + global_artefacts
 
-        # get artefact start indices
-        # [0] is start index, [1] is end index of the signal array
-        icp_artefacts_idx = [artefact.to_index(icp_sr, WINDOW_SIZE_SEC, icp_start_time_s)[0] for artefact in icp_artefacts]
-        abp_artefacts_idx = [artefact.to_index(abp_sr, WINDOW_SIZE_SEC, abp_start_time_s)[0] for artefact in abp_artefacts]
-        icp_artefacts_idx = set(icp_artefacts_idx)
-        abp_artefacts_idx = set(abp_artefacts_idx)
+            # get artefact start indices
+            # [0] is start index, [1] is end index of the signal array
+            artefacts_idx = [artefact.to_index(sr, WINDOW_SIZE_SEC, start_time_s)[0] for artefact in artefacts]
+            artefacts_idx = set(artefacts_idx)
+
+            artefact_count = len(artefacts_idx)
+        elif args.s == 'abp':
+            artefacts = artefacts["abp_artefacts"]
+            artefacts = artefacts + global_artefacts
+
+            # get artefact start indices
+            # [0] is start index, [1] is end index of the signal array
+            artefacts_idx = [artefact.to_index(sr, WINDOW_SIZE_SEC, start_time_s)[0] for artefact in artefacts]
+            artefacts_idx = set(artefacts_idx)
+
+            artefact_count = len(artefacts_idx)
+    else:
+        artefacts_idx = set()
+        artefact_count = None
 
     # save segments
-    for i in range(0, len(icp_signal), icp_sr * WINDOW_SIZE_SEC):
+    check_normal_count = args.sn and include_artefacts
+    normal_count = 0
+    for i in range(0, len(signal), sr * WINDOW_SIZE_SEC):
+        is_artefact = i in artefacts_idx
+
+        # skip normals if same amount reached as artefacts
+        if (check_normal_count
+            and not is_artefact
+            and normal_count >= artefact_count):
+            continue
+
         # get segments
-        icp_segment = icp_signal[i:i + icp_sr * WINDOW_SIZE_SEC]
-        abp_segment = abp_signal[i:i + abp_sr * WINDOW_SIZE_SEC]
+        segment = signal[i:i + sr * WINDOW_SIZE_SEC]
+        assert len(segment.flatten()) == sr * WINDOW_SIZE_SEC
 
-        if include_artefacts:
-            icp_is_artefact = i in icp_artefacts_idx
-            abp_is_artefact = i in abp_artefacts_idx
+        np.savetxt(
+                os.path.join(output_dir,
+                             (
+                             f"{args.s}_{i}_{1 if is_artefact else 0}.txt"
+                             if is_artefact is not None else
+                             f"{args.s}_{i}.txt")
+                             ),
+                segment)
 
-            np.savetxt(
-                    os.path.join(output_dir,
-                                 f"icp_{i}_{1 if icp_is_artefact else 0}.txt"),
-                    icp_segment)
-            np.savetxt(
-                    os.path.join(output_dir,
-                                 f"abp_{i}_{1 if abp_is_artefact else 0}.txt"),
-                    abp_segment)
-        else:
-            np.savetxt(
-                    os.path.join(output_dir, f"icp_{i}.txt"),
-                    icp_segment)
-            np.savetxt(
-                    os.path.join(output_dir, f"abp_{i}.txt"),
-                    abp_segment)
+        if check_normal_count and not is_artefact:
+            normal_count += 1
 
 
 if __name__ == "__main__":
@@ -97,9 +119,14 @@ if __name__ == "__main__":
             """)
     parser.add_argument('-fh', type=str, help='Path to HDF5 file', required=True)
     parser.add_argument('-fa', type=str, help='Path to ARTF file')
+    parser.add_argument('-s', type=str, help='Signal to export, abp or icp', required=True)
     parser.add_argument('-o', type=str, help='Output directory', required=True)
+    parser.add_argument('-sn', action='store_true', help='Export same number of normal and artefact segments')
 
     args = parser.parse_args()
+
+    if args.s not in {'abp', 'icp'}:
+        raise Exception("Unknown signal value")
 
     main(args)
 

@@ -61,17 +61,33 @@ def read_hdf5_signal(hdf5_file, signal="icp"):
     }
 
 def read_hdf5(filename):
-    hdf5_file = h5py.File(filename, 'r') 
-
-    try:
-        icp_signal = read_hdf5_signal(hdf5_file, signal="icp")
+    with h5py.File(filename, 'r') as f:
+        icp_signal = read_hdf5_signal(f, signal="icp")
         try:
-            abp_signal = read_hdf5_signal(hdf5_file, signal="abp")
+            abp_signal = read_hdf5_signal(f, signal="abp")
         except KeyError:
-            abp_signal = read_hdf5_signal(hdf5_file, signal="art")
+            abp_signal = read_hdf5_signal(f, signal="art")
 
         return icp_signal, abp_signal
-    finally:
-        hdf5_file.close()
 
+def read_hdf5_with_signals(filename):
+    with h5py.File(filename, 'r') as f:
+
+        signals = []
+        if 'waves' in f:
+            for signal in f['waves']:
+                # skip .index .quality
+                if '.' in signal:
+                    continue
+
+                signals.append(signal)
+
+
+        icp_signal = read_hdf5_signal(f, signal="icp")
+        try:
+            abp_signal = read_hdf5_signal(f, signal="abp")
+        except KeyError:
+            abp_signal = read_hdf5_signal(f, signal="art")
+
+        return icp_signal, abp_signal, signals
 

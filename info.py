@@ -1,6 +1,6 @@
 from lib.readers import ARTFReader
 from lib.hdf5_reader_module import SignalClass
-from lib.funcs import read_artf, read_hdf5
+from lib.funcs import read_artf, read_hdf5_with_signals
 
 import h5py
 import numpy as np
@@ -12,7 +12,7 @@ def main(args):
     artf_filename = args.fa
 
     # load hdf5
-    icp_signal, abp_signal = read_hdf5(hdf5_filepath)
+    icp_signal, abp_signal, signals = read_hdf5_with_signals(hdf5_filepath)
 
     # get start times and end times
     icp_start_time_s = icp_signal["start_time_s"]
@@ -30,6 +30,7 @@ def main(args):
     icp_n_segments = int(icp_length_s // 10)
     abp_n_segments = int(abp_length_s // 10)
 
+    print(f"Signals: {','.join(signals)}")
     print(f"ICP length: {icp_length_h:.2f} h")
     print(f"ABP length: {abp_length_h:.2f} h")
     print(f"ICP segments (10 s): {icp_n_segments}")

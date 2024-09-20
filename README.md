@@ -52,7 +52,30 @@ python3 info.py -fh <path_to_hdf5_file> [-fa <path_to_artf_file>]
 python3 info.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf
 ```
 
+To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named as `{signal}_{start_idx}_{is_artefact}.txt` if artefacts are provided, otherwise `{signal}_{start_idx}.txt` where `0` indicates normal and `1` indicates an artefact segment.
+```
+# ABP signal with annotation
+python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s abp
+
+# ICP signal with annotation
+python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s abp
+# ABP signal without annotation
+python3 extract.py -fh ./data/TBI_003.hdf5 -o ./export/ -s abp
+```
+To export the same number of normal segments (not marked as artefacts) as artefact segments, use the `-sn` switch. For example, if there are 704 marked artefacts in the ABP signal of this file, then only the first 704 normal segments will be exported along with the artefact segments (without this switch, all normal segments are exported).
+```
+# ABP signal without annotation
+python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s abp -sn
+```
+
 ## Tools
 
 - `info.py`: Displays information about the HDF5 file.
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
+
+## Notes
+**Be sure to read this**
+
+Note that the ABP wave signal is sometimes stored in HDF5 files as `waves.art` instead of `waves.abp`. 
+
+
