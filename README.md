@@ -81,8 +81,50 @@ python3 artefacts.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -s icp
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
 - `artefacts.py`: Displays information about **artifacts** present in the HDF5 file. 
 
+## ARTF File Format
+
+The ARTF file, stored in XML format, contains information about artefacts present in the corresponding HDF5 file. It has the following structure:
+
+* **`<ICMArtefacts>`**: The root element encompassing all artefact information.
+* **`<Global>`**: Contains artefacts that apply to all signals in the HDF5 file.
+    * **`<Artefact>`**:  Defines an artefact with `StartTime` and `EndTime` attributes specifying its duration.
+* **`<SignalGroup>`**:  Contains artefacts specific to a particular signal, identified by the `Name` attribute.
+    * **`<Artefact>`**: Similar to the global artefact, defines an artefact with `StartTime` and `EndTime` attributes.
+* **`<Info>`**:  Provides metadata about the ARTF file.
+    * **`HDF5Filename`**:  The name of the associated HDF5 file
+    * **`UserID`**: (Optional) Identifier of the user who annotated the artefacts
+
+**Example**
+
+```xml
+<?xml version="1.0" ?>
+<ICMArtefacts>
+
+    <Global>
+        <Artefact StartTime="01/01/1970 00:00:05.000"
+                  EndTime="01/01/1970 00:00:15.000"/>
+    </Global>
+
+    <SignalGroup Name="icp">
+        <Artefact StartTime="01/01/1970 00:00:15.000"
+                  EndTime="01/01/1970 00:00:25.000"/>
+    </SignalGroup>
+
+    <SignalGroup Name="abp">
+        <Artefact StartTime="01/01/1970 00:00:25.000"
+                  EndTime="01/01/1970 00:00:35.000"/>
+        <Artefact StartTime="01/01/1970 00:00:35.000"
+                  EndTime="01/01/1970 00:00:45.000"/>
+    </SignalGroup>
+
+    <Info HDF5Filename="soubor.hdf5" UserID="uzivatel1"/>
+
+</ICMArtefacts>
+``` 
+
 ## Notes
 **Be sure to read this**
 
 Note that the ABP wave signal is sometimes stored in HDF5 files as `waves.art` instead of `waves.abp`. 
+
 
