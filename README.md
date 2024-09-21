@@ -79,7 +79,7 @@ python3 artefacts.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -s icp
 
 - `info.py`: Displays information about the HDF5 file.
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
-- `artefacts.py`: Displays information about **artifacts** present in the HDF5 file. 
+- `artefacts.py`: Displays information about artefacts present in the HDF5 file. 
 
 ## ARTF File Format
 
