@@ -2,13 +2,12 @@ from lib.readers import ARTFReader
 from lib.hdf5_reader_module import SignalClass
 from lib.funcs import read_artf, read_hdf5
 
-import h5py
 import numpy as np
 import argparse
 import os
-import matplotlib.pyplot as plt
 
 WINDOW_SIZE_SEC = 10
+
 
 def main(args):
     hdf5_filepath = args.fh

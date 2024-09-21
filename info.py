@@ -2,8 +2,6 @@ from lib.readers import ARTFReader
 from lib.hdf5_reader_module import SignalClass
 from lib.funcs import read_artf, read_hdf5_with_signals
 
-import h5py
-import numpy as np
 import argparse
 
 
