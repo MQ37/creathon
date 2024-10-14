@@ -47,32 +47,29 @@ pip install -r requirements.txt
 
 Run the desired tool/script with the required arguments (these can be found in the help message using the `-h` flag). For example, to use the `info` tool, run:
 ```bash
-python3 info.py -fh <path_to_hdf5_file> [-fa <path_to_artf_file>]
+python3 info.py -f <path_to_hdf5_file>
 # example
-python3 info.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf
+python3 info.py -f ./data/TBI_003.hdf5
 ```
 
-To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named as `{signal}_{start_idx}_{is_artefact}.txt` if artefacts are provided, otherwise `{signal}_{start_idx}.txt` where `0` indicates normal and `1` indicates an artefact segment.
+To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named as `{signal}_{start_idx}_{is_artefact}.txt` where `0` indicates normal and `1` indicates an artefact segment.
 ```
-# ABP signal with annotation
-python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s abp
-# ICP signal with annotation
-python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s icp
-
-# ABP signal without annotation
-python3 extract.py -fh ./data/TBI_003.hdf5 -o ./export/ -s abp
+# ABP signal
+python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp
+# ICP signal
+python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s icp
 ```
 To export the same number of normal segments (not marked as artefacts) as artefact segments, use the `-sn` switch. For example, if there are 704 marked artefacts in the ABP signal of this file, then only the first 704 normal segments will be exported along with the artefact segments (without this switch, all normal segments are exported).
 ```
-# ABP signal without annotation
-python3 extract.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -o ./export/ -s abp -sn
+# ABP signal same number of segments
+python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp -sn
 ```
 To print all artifacts present in the HDF5 file with their signal index and datetime, use the `artefacts.py` tool. 
 ```
 # ABP
-python3 artefacts.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -s abp
+python3 artefacts.py -f ./data/TBI_003.hdf5 -s abp
 # ICP
-python3 artefacts.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -s icp
+python3 artefacts.py -f ./data/TBI_003.hdf5 -s icp
 ```
 
 ## Tools
