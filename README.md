@@ -81,6 +81,11 @@ python3 artefacts.py -fh ./data/TBI_003.hdf5 -fa ./data/TBI_003.artf -s icp
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
 - `artefacts.py`: Displays information about artefacts present in the HDF5 file. 
 
+## How to load segments
+
+You can use two classes from `lib.loader` to work with the HDF5 file ABP and ICP signals. `SingleFileExtractor` to extract signal segments from a single file (and the corresponding `.artf` file) and `FolderExtractor` to extract all segments from all files in a specified directory. Be sure to go through `example.py` to see how to use those two classes. When you run `example.py`, you should see the following plot:
+![Example ABP anomaly segment plot](screenshots/example.png)
+
 ## ARTF File Format
 
 The ARTF file, stored in XML format, contains information about artefacts present in the corresponding HDF5 file. It has the following structure:
