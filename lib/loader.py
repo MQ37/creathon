@@ -200,10 +200,13 @@ class SingleFileExtractor:
 
     def __init__(self, file_path: str, mode: str, matching: bool = False, matching_multiplier: int = 1, skip_empty: bool = True) -> None:
         self._signal = Signal(file_path, self._assign_artf_file_path(file_path), mode, skip_empty)
+        self._matching = matching
         self._anomalies: List[Segment] = []
         self._normal: List[Segment] = []
         self._matching_multiplier = matching_multiplier
-        if matching:
+
+    def _extract(self):
+        if self._matching:
             self._extract_matching()
         else:
             self._extract_all()
@@ -309,12 +312,28 @@ class SingleFileExtractor:
 
     def get_anomalies(self) -> List[Segment]:
         """Returns the extracted anomalies."""
+        self._extract()
         return [segment for segment in self._anomalies if not segment.empty]
 
     def get_normal(self) -> List[Segment]:
         """Returns the extracted normal segments."""
+        self._extract()
         return [segment for segment in self._normal if not segment.empty]
+    
+    def return_hdf5_as_array(self) -> np.array:
+        """Loads and returns the entire dataset from the HDF5 file as a NumPy array.
+        
+        Returns:
+            np.ndarray: The full dataset from the HDF5 file.
+        """
+        try:
+            with h5py.File(self._signal.file_path, 'r') as hdf:
+                dataset = hdf[f"waves/{self._signal.mode}"]
+                entire_data = np.nan_to_num(np.array(dataset), nan=-99999)
+            return entire_data
 
+        except FileNotFoundError:
+            raise FileNotFoundError("No such file or the file is missing an extension.")
 
 
 class FolderExtractor:
@@ -449,7 +468,7 @@ class FolderExtractor:
             output_dir (str): Path to the output folder where the segments should be saved.
             format (str): Format in which to save the files, either 'json' or 'csv'. Default is 'json'.
         """
-        output_dir_path = Path(output_dir)
+        output_dir_path = Path(fr"{output_dir}/{self._mode}")
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         for root, _, files in os.walk(self._folder_path):
@@ -467,3 +486,34 @@ class FolderExtractor:
                         skip_empty=self._skip_empty,
                     )
                     extractor.export_data(output_dir_path, export_format)
+
+    def return_hdf5_as_array(self) -> Dict[str, np.array]:
+        """Extracts anomalies and normal segments from all files in the folder.
+        Returns:
+            Tuple[List[Segment], List[Segment]]: A tuple containing arrays of anomaly and normal segments.
+        """
+
+        data_collector = {}
+
+        for root, _, files in os.walk(self._folder_path):
+            hdf5_files = [f for f in files if f.endswith(".hdf5")]
+
+            for hdf5_file in hdf5_files:
+                file_name = hdf5_file.replace(".hdf5", "")
+
+                extractor = SingleFileExtractor(
+                        file_path=os.path.join(root, hdf5_file),
+                        mode=self._mode,
+                        matching=self._matching,
+                        matching_multiplier=self._matching_multiplier,
+                        skip_empty=self._skip_empty,
+                    )
+                
+                hdf5_array = extractor.return_hdf5_as_array()
+
+                if data_collector.get(file_name) is None:
+                    data_collector[file_name] = hdf5_array
+                elif not np.all(data_collector.get(file_name) == hdf5_array):
+                    print(f"A file with the same name as {file_name} was already loaded, skipping the file.")
+
+        return data_collector

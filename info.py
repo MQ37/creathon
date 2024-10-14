@@ -16,14 +16,18 @@ def main(args):
 
     abp_normal = abp_extractor.get_normal()
     abp_anomaly = abp_extractor.get_anomalies()
-    icp_normal = icp_extractor.get_anomalies()
+    abp_array = abp_extractor.return_hdf5_as_array()
+    icp_normal = icp_extractor.get_normal()
     icp_anomaly = icp_extractor.get_anomalies()
+    icp_array = icp_extractor.return_hdf5_as_array()
 
     # get number of segments
     icp_n_segments = len(icp_anomaly) + len(icp_normal)
     abp_n_segments = len(abp_anomaly) + len(abp_normal)
-    icp_length_h = icp_n_segments / 6 / 60
-    abp_length_h = abp_n_segments / 6 / 60
+    #icp_length_h = icp_n_segments / 6 / 60
+    icp_length_h = len(icp_array) / icp_extractor.get_frequency() / 3600
+    #abp_length_h = abp_n_segments / 6 / 60
+    abp_length_h = len(abp_array) / abp_extractor.get_frequency() / 3600
 
     signals = get_hdf5_signal_names(hdf5_filepath)
 
