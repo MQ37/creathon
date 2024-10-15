@@ -46,7 +46,7 @@ def main(args):
     print(f"ABP sample rate: {abp_sr:.2f} Hz")
 
     print("ICP artefact segments: ", len(icp_anomaly))
-    print("ABP artefacts segments: ", len(abp_anomaly))
+    print("ABP artefacts segments: ", len(abp_anomaly))#chtelo by zmenu artefakty -> anomalie
     total_artefacts = len(icp_anomaly) + len(abp_anomaly)
     print("Total artefacts: ", total_artefacts)
 

@@ -16,7 +16,7 @@ def main(args):
 
     for segment in anomaly_segments:
         # micro to sec
-        dt = datetime.datetime.utcfromtimestamp(segment.start_time / 1e6)
+        dt = datetime.datetime.fromtimestamp(segment.start_time / 1e6, datetime.timezone.utc)
         print(f"Artefact ({mode}) at {segment.start_time} ({dt})")
 
 
