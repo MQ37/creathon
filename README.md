@@ -2,7 +2,7 @@
 
 This repository contains a set of utilities for working with HDF5 files.
 
-Raw signals are stored in HDF5 files. These can be loaded using the functions provided in the `lib/funcs.py` module. When a signal is annotated, it is split into segments of 10 seconds. Each segment is given a label based on whether an artefact is present in the segment. The artefact information is stored in a separate XML file with the same name as the HDF5 file, but with an `.artf` extension. See the provided tools for more information on how to work with the data at a low level.
+Raw signals are stored in HDF5 files. These can be loaded using the functions provided in the `lib/funcs.py` module. When a signal is annotated, it is split into segments of 10 seconds. Each segment is given a label based on whether an anomaly is present in the segment. The anomaly information is stored in a separate XML file with the same name as the HDF5 file, but with an `.artf` extension. See the provided tools for more information on how to work with the data at a low level.
 
 ## Installation (Linux/MacOS)
 **Python 3.9+ is required**
@@ -52,19 +52,19 @@ python3 info.py -f <path_to_hdf5_file>
 python3 info.py -f ./data/TBI_003.hdf5
 ```
 
-To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named as `{signal}_{start_idx}_{is_artefact}.txt` where `0` indicates normal and `1` indicates an artefact segment.
+To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named `{signal}_{start_idx}_{is_artefact}.txt` where `0` indicates a normal and `1` indicates an anomaly segment.
 ```
 # ABP signal
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp
 # ICP signal
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s icp
 ```
-To export the same number of normal segments (not marked as artefacts) as artefact segments, use the `-sn` switch. For example, if there are 704 marked artefacts in the ABP signal of this file, then only the first 704 normal segments will be exported along with the artefact segments (without this switch, all normal segments are exported).
+To export the same number of normal segments (not marked as anomalies) as artefact segments, use the `-sn` switch. For example, if there are 704 marked anomalies in the ABP signal of this file, then only the first 704 normal segments will be exported along with the artefact segments (without this switch, all normal segments are exported).
 ```
 # ABP signal same number of segments
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp -sn
 ```
-To print all artifacts present in the HDF5 file with their signal index and datetime, use the `artefacts.py` tool. 
+To print all anomalies present in the HDF5 file with their signal index and datetime, use the `artefacts.py` tool. 
 ```
 # ABP
 python3 artefacts.py -f ./data/TBI_003.hdf5 -s abp
@@ -76,7 +76,7 @@ python3 artefacts.py -f ./data/TBI_003.hdf5 -s icp
 
 - `info.py`: Displays information about the HDF5 file.
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
-- `artefacts.py`: Displays information about artefacts present in the HDF5 file. 
+- `artefacts.py`: Displays information about anomalies present in the HDF5 file. 
 
 ## How to load segments
 
@@ -85,7 +85,7 @@ You can use two classes from `lib.loader` to work with the HDF5 file ABP and ICP
 
 ## ARTF File Format
 
-The ARTF file, stored in XML format, contains information about artefacts present in the corresponding HDF5 file. It has the following structure:
+The ARTF file, stored in XML format, contains information about anomalies present in the corresponding HDF5 file. It has the following structure:
 
 * **`<ICMArtefacts>`**: The root element encompassing all artefact information.
 * **`<Global>`**: Contains artefacts that apply to all signals in the HDF5 file.
