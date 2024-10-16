@@ -91,3 +91,15 @@ def read_hdf5_with_signals(filename):
 
         return icp_signal, abp_signal, signals
 
+def get_hdf5_signal_names(filename: str):
+    with h5py.File(filename, 'r') as f:
+
+        signals = []
+        if 'waves' in f:
+            for signal in f['waves']:
+                # skip .index .quality
+                if '.' in signal:
+                    continue
+
+                signals.append(signal)
+        return signals
