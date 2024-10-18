@@ -52,31 +52,31 @@ python3 info.py -f <path_to_hdf5_file>
 python3 info.py -f ./data/TBI_003.hdf5
 ```
 
-To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named `{signal}_{start_idx}_{is_artefact}.txt` where `0` indicates a normal and `1` indicates an anomaly segment.
+To export ABP/ICP 10s segments from an HDF5 file, use the provided extract.py script. The segments will be exported as NumPy text files named `{signal}_{start_idx}_{is_anomalous}.txt` where `0` indicates a normal and `1` indicates an anomalous segment.
 ```
 # ABP signal
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp
 # ICP signal
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s icp
 ```
-To export the same number of normal segments (not marked as anomalies) as artefact segments, use the `-sn` switch. For example, if there are 704 marked anomalies in the ABP signal of this file, then only the first 704 normal segments will be exported along with the artefact segments (without this switch, all normal segments are exported).
+To export the same number of normal segments (not marked as anomalies) as anomalous segments, use the `-sn` switch. For example, if there are 704 marked anomalies in the ABP signal of this file, then only the first 704 normal segments will be exported along with the anomalous segments (without this switch, all normal segments are exported).
 ```
 # ABP signal same number of segments
 python3 extract.py -f ./data/TBI_003.hdf5 -o ./export/ -s abp -sn
 ```
-To print all anomalies present in the HDF5 file with their signal index and datetime, use the `artefacts.py` tool. 
+To print all anomalies present in the HDF5 file with their signal index and datetime, use the `anomalies.py` tool. 
 ```
 # ABP
-python3 artefacts.py -f ./data/TBI_003.hdf5 -s abp
+python3 anomalies.py -f ./data/TBI_003.hdf5 -s abp
 # ICP
-python3 artefacts.py -f ./data/TBI_003.hdf5 -s icp
+python3 anomalies.py -f ./data/TBI_003.hdf5 -s icp
 ```
 
 ## Tools
 
 - `info.py`: Displays information about the HDF5 file.
 - `extract.py`: Extracts data from the HDF5 file and saves it as a NumPy TXT file.
-- `artefacts.py`: Displays information about anomalies present in the HDF5 file. 
+- `anomalies.py`: Displays information about anomalies present in the HDF5 file. 
 
 ## How to load segments
 
@@ -87,14 +87,14 @@ You can use two classes from `lib.loader` to work with the HDF5 file ABP and ICP
 
 The ARTF file, stored in XML format, contains information about anomalies present in the corresponding HDF5 file. It has the following structure:
 
-* **`<ICMArtefacts>`**: The root element encompassing all artefact information.
-* **`<Global>`**: Contains artefacts that apply to all signals in the HDF5 file.
-    * **`<Artefact>`**:  Defines an artefact with `StartTime` and `EndTime` attributes specifying its duration.
-* **`<SignalGroup>`**:  Contains artefacts specific to a particular signal, identified by the `Name` attribute.
-    * **`<Artefact>`**: Similar to the global artefact, defines an artefact with `StartTime` and `EndTime` attributes.
+* **`<ICMArtefacts>`**: The root element encompassing all anomaly information.
+* **`<Global>`**: Contains anomalies that apply to all signals in the HDF5 file.
+    * **`<Artefact>`**:  Defines an anomaly with `StartTime` and `EndTime` attributes specifying its duration.
+* **`<SignalGroup>`**:  Contains anomalies specific to a particular signal, identified by the `Name` attribute.
+    * **`<Artefact>`**: Similar to the global anomaly, defines an anomaly with `StartTime` and `EndTime` attributes.
 * **`<Info>`**:  Provides metadata about the ARTF file.
-    * **`HDF5Filename`**:  The name of the associated HDF5 file
-    * **`UserID`**: (Optional) Identifier of the user who annotated the artefacts
+    * **`HDF5Filename`**:  The name of the associated HDF5 file.
+    * **`UserID`**: (Optional) Identifier of the user who annotated the anomalies.
 
 **Example**
 

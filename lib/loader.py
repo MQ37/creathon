@@ -179,12 +179,12 @@ class Signal:
 
 
 class SingleFileExtractor:
-    """Extracts anomalies and normal segments from a single file.
+    """Extracts anomalous and normal segments from a single file.
 
     Attributes:
         file_path (str): Path to the HDF5 file. Always ends with ".hdf5"
         mode (str): The mode to use for extracting data from the HDF5 file. Only use "abp" or "icp".
-        matching (bool): Whether to extract matching number of anomalies and normal segments or not.
+        matching (bool): Whether to extract matching number of anomalous and normal segments or not.
                          This option DOESN'T guarantee len(normal_segments) == len(anomalies),
                          but rather len(normal_segments) <= len(anomalies).
         matching_multiplier (int): Multiplier for matching anomalies. For example, a multiplier of 2
@@ -195,7 +195,7 @@ class SingleFileExtractor:
     >>> extractor = SingleFileExtractor(FILE_PATH, "abp")
 
     >>> normal_segments = extractor.get_normal()
-    >>> anomaly_segments = extractor.get_anomalies()
+    >>> anomalous_segments = extractor.get_anomalies()
     """
 
     def __init__(self, file_path: str, mode: str, matching: bool = False, matching_multiplier: int = 1, skip_empty: bool = True) -> None:
@@ -225,7 +225,7 @@ class SingleFileExtractor:
         root = tree.getroot()
         modes = [f"SignalGroup[@Name='{self._signal.mode}']", "Global"]
 
-        anomaly_segments, normal_segments = [], []
+        anomalous_segments, normal_segments = [], []
 
         for mode in modes:
             normal_start_unix = 0
@@ -235,7 +235,7 @@ class SingleFileExtractor:
                 from_file = self._signal.file_path
                 patient = re.search(r"TBI_(\w+)", from_file).group(1).split('_')[0]
 
-                anomaly_segments.append(Segment(start_time=start_time_unix, end_time=end_time_unix, file=from_file, patient_id=patient, empty=True))
+                anomalous_segments.append(Segment(start_time=start_time_unix, end_time=end_time_unix, file=from_file, patient_id=patient, empty=True))
 
                 if normal_start_unix:
                     normal_end_unix = start_time_unix
@@ -244,21 +244,21 @@ class SingleFileExtractor:
                 
                 normal_start_unix = end_time_unix
 
-        return anomaly_segments, normal_segments
+        return anomalous_segments, normal_segments
 
     def _extract_all(self) -> None:
-        """Extracts all anomalies and normal segments."""
-        anomaly_segments, normal_segments = self._get_anomaly_normal_segments()
+        """Extracts all anomalous and normal segments."""
+        anomalous_segments, normal_segments = self._get_anomaly_normal_segments()
 
-        for i, segments in enumerate([normal_segments, anomaly_segments]):
+        for i, segments in enumerate([normal_segments, anomalous_segments]):
             self._extract_data_for_segments(segments, anomaly=bool(i))
 
     def _extract_matching(self) -> None:
         """Extracts anomalies and a matching number of normal segments."""
-        anomaly_segments, normal_segments = self._get_anomaly_normal_segments()
-        normal_segments = normal_segments[:len(anomaly_segments) * self._matching_multiplier]
+        anomalous_segments, normal_segments = self._get_anomaly_normal_segments()
+        normal_segments = normal_segments[:len(anomalous_segments) * self._matching_multiplier]
 
-        for i, segments in enumerate([normal_segments, anomaly_segments]):
+        for i, segments in enumerate([normal_segments, anomalous_segments]):
             self._extract_data_for_segments(segments, anomaly=bool(i))
 
     def _extract_data_for_segments(self, segments: List[Segment], anomaly: bool = False) -> None:
@@ -269,7 +269,7 @@ class SingleFileExtractor:
             segment.data = self._signal.get_data_in_range(segment)
 
     def export_data(self, output_dir: str, export_format: str = "csv") -> None:
-        """Saves anomaly and normal segments as CSV or JSON in the specified output directory."""
+        """Saves anomalous and normal segments as CSV or JSON in the specified output directory."""
         self._extract()
         anomaly_path, normal_path = Path(output_dir) / "anomalies", Path(output_dir) / "normal_segments"
         anomaly_path.mkdir(parents=True, exist_ok=True)
@@ -299,7 +299,7 @@ class SingleFileExtractor:
             raise ValueError(f"Unsupported format: {export_format}. Please choose 'json' or 'csv'.")
 
     def get_frequency(self) -> int:
-        """Returns the frequency of the first anomaly or normal segment."""
+        """Returns the frequency of the first anomalous or normal segment."""
         if self._anomalies:
             return self._anomalies[0].frequency
         if self._normal:
@@ -338,12 +338,12 @@ class SingleFileExtractor:
 
 
 class FolderExtractor:
-    """Extracts anomalies and normal segments from all files in a folder.
+    """Extracts anomalous and normal segments from all files in a folder.
 
     Attributes:
         folder_path (str): Path to the folder containing the files, also searches subfolders for files.
         mode (str): The mode to use for extracting data from the HDF5 files. Only use "abp" or "icp".
-        matching (bool): Whether to extract matching number of anomalies and normal segments or not.
+        matching (bool): Whether to extract matching number of anomalous and normal segments or not.
                          This option DOESN'T guarantee len(normal_segments) == len(anomalies),
                          but rather len(normal_segments) <= len(anomalies).
         matching_multiplier (int): Multiplier for matching anomalies. For example, a multiplier of 2
@@ -352,11 +352,11 @@ class FolderExtractor:
     
     Example usage:
     >>> extractor = FolderExtractor(FOLDER_PATH)
-    >>> anomaly_segments, normal_segments = extractor.extract_all()
+    >>> anomalous_segments, normal_segments = extractor.extract_all()
 
 
     >>> extractor = FolderExtractor(FOLDER_PATH)
-    >>> anomaly_patient_dictionary, normal_segments_patient_dictionary = extractor.extract_merged()
+    >>> anomalous_segments_patient_dictionary, normal_segments_patient_dictionary = extractor.extract_merged()
 
     """
 
@@ -371,9 +371,9 @@ class FolderExtractor:
             raise FileNotFoundError("Invalid folder path.")
 
     def extract_all(self) -> Tuple[List[Segment], List[Segment]]:
-        """Extracts anomalies and normal segments from all files in the folder.
+        """Extracts anomalous and normal segments from all files in the folder.
         Returns:
-            Tuple[List[Segment], List[Segment]]: A tuple containing arrays of anomaly and normal segments.
+            Tuple[List[Segment], List[Segment]]: A tuple containing arrays of anomalous and normal segments.
         """
         anomalies, normal, frequencies = [], [], set()
 
@@ -408,7 +408,7 @@ class FolderExtractor:
         """Extracts and merges anomalies and normal segments for each patient.
 
         Returns:
-            Tuple[Dict[str, List[Segment]], Dict[str, List[Segment]]]: A tuple containing dictionaries of anomalies and normal segments grouped by patient ID.
+            Tuple[Dict[str, List[Segment]], Dict[str, List[Segment]]]: A tuple containing dictionaries of anomalous and normal segments grouped by patient ID.
         """
         patient_data_artf: Dict[str, List[Segment]] = {}
         patient_data_normal: Dict[str, List[Segment]] = {}
@@ -489,9 +489,9 @@ class FolderExtractor:
                     extractor.export_data(output_dir_path, export_format)
 
     def return_hdf5_as_array(self) -> Dict[str, np.array]:
-        """Extracts anomalies and normal segments from all files in the folder.
+        """Extracts anomalous and normal segments from all files in the folder.
         Returns:
-            Tuple[List[Segment], List[Segment]]: A tuple containing arrays of anomaly and normal segments.
+            Tuple[List[Segment], List[Segment]]: A tuple containing arrays of anomalous and normal segments.
         """
 
         data_collector = {}

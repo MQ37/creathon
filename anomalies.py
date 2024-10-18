@@ -17,14 +17,14 @@ def main(args):
     for segment in anomaly_segments:
         # micro to sec
         dt = datetime.datetime.fromtimestamp(segment.start_time / 1e6, datetime.timezone.utc)
-        print(f"Artefact ({mode}) at {segment.start_time} ({dt})")
+        print(f"Anomaly ({mode}) at {segment.start_time} ({dt})")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             description="""
-            HDF5 Creathon artefacts tool.
-            Use this tool to get information about artefacts present in HDF5 file.
+            HDF5 Creathon anomalies tool.
+            Use this tool to get information about anomalies present in HDF5 file.
             """)
     parser.add_argument('-f', type=str, help='Path to HDF5 file (with corresponding .artf file)', required=True)
     parser.add_argument('-s', type=str, help='Signal to export, abp or icp', required=True)

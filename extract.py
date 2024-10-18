@@ -48,12 +48,12 @@ if __name__ == "__main__":
             HDF5 Creathon extract tool.
             Use this tool to extract signal segments from HDF5 file and their annotations from ARTF file.
             Outputs signal segments as numpy text files in the output directory.
-            Files are named as {signal}_{start_ts_micro}_{is_artefact}.txt where 0 is not an artefact and 1 is an artefact.
+            Files are named as {signal}_{start_ts_micro}_{is_anomalous}.txt where 0 is not an anomaly and 1 is an anomaly.
             """)
     parser.add_argument('-f', type=str, help='Path to HDF5 file (with corresponding .artf file)', required=True)
     parser.add_argument('-s', type=str, help='Signal to export, abp or icp', required=True)
     parser.add_argument('-o', type=str, help='Output directory', required=True)
-    parser.add_argument('-sn', action='store_true', help='Export same number of normal and artefact segments')
+    parser.add_argument('-sn', action='store_true', help='Export same number of normal and anomalous segments')
 
     args = parser.parse_args()
 

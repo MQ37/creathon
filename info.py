@@ -45,17 +45,17 @@ def main(args):
     print(f"ICP sample rate: {icp_sr:.2f} Hz")
     print(f"ABP sample rate: {abp_sr:.2f} Hz")
 
-    print("ICP artefact segments: ", len(icp_anomaly))
-    print("ABP artefacts segments: ", len(abp_anomaly))#chtelo by zmenu artefakty -> anomalie
-    total_artefacts = len(icp_anomaly) + len(abp_anomaly)
-    print("Total artefacts: ", total_artefacts)
+    print("ICP anomalous segments: ", len(icp_anomaly))
+    print("ABP anomalous segments: ", len(abp_anomaly))#chtelo by zmenu artefakty -> anomalie
+    total_anomalies = len(icp_anomaly) + len(abp_anomaly)
+    print("Total anomalies: ", total_anomalies)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             description="""
             HDF5 Creathon info tool.
-            Use this tool to get information about the HDF5 file and the artefacts.
+            Use this tool to get information about the HDF5 file and the anomalies associated with it.
             """)
     parser.add_argument('-f', type=str, help='Path to HDF5 file (with corresponding .artf file)', required=True)
 
