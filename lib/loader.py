@@ -1,5 +1,5 @@
 """
-v1.1
+v1.1f
 
 Developed by The Department of Data Analysis and Simulations.
 
@@ -268,8 +268,9 @@ class SingleFileExtractor:
         for segment in target:
             segment.data = self._signal.get_data_in_range(segment)
 
-    def export_data(self, output_dir: str, export_format: str = "json") -> None:
-        """Saves anomaly and normal segments as JSON or CSV in the specified output directory."""
+    def export_data(self, output_dir: str, export_format: str = "csv") -> None:
+        """Saves anomaly and normal segments as CSV or JSON in the specified output directory."""
+        self._extract()
         anomaly_path, normal_path = Path(output_dir) / "anomalies", Path(output_dir) / "normal_segments"
         anomaly_path.mkdir(parents=True, exist_ok=True)
         normal_path.mkdir(parents=True, exist_ok=True)
@@ -278,12 +279,12 @@ class SingleFileExtractor:
         anomaly_data = [{**segment.__dict__, 'data': segment.data.tolist()} for segment in self._anomalies]
         normal_data = [{**segment.__dict__, 'data': segment.data.tolist()} for segment in self._normal]
 
-        if export_format == "json":
+        if export_format.lower() == "json":
             with open(anomaly_path / f"{base_filename}_anomalies.json", 'w') as f:
                 json.dump(anomaly_data, f, indent=4)
             with open(normal_path / f"{base_filename}_normal.json", 'w') as f:
                 json.dump(normal_data, f, indent=4)
-        elif export_format == "csv":
+        elif export_format.lower() == "csv":
             if self._anomalies:
                 with open(anomaly_path / f"{base_filename}_anomalies.csv", 'w', newline='') as f:
                     writer = csv.DictWriter(f, fieldnames=self._anomalies[0].__dict__.keys())
@@ -461,12 +462,12 @@ class FolderExtractor:
 
     
     
-    def export_data(self, output_dir: str, export_format: str = "json") -> None:
+    def export_data(self, output_dir: str, export_format: str = "csv") -> None:
         """Exports the extracted data for each file.
 
         Args:
             output_dir (str): Path to the output folder where the segments should be saved.
-            format (str): Format in which to save the files, either 'json' or 'csv'. Default is 'json'.
+            format (str): Format in which to save the files, either 'csv' or 'json'. Default is 'csv'.
         """
         output_dir_path = Path(fr"{output_dir}/{self._mode}")
         output_dir_path.mkdir(parents=True, exist_ok=True)
