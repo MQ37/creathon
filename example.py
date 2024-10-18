@@ -13,7 +13,7 @@ anomaly_segments, normal_segments = extractor.extract_all()
 """
 
 # extract all ABP anomalous segments and matching number
-# of normal segmetns from TBI_003.hdf5 file
+# of normal segments from TBI_003.hdf5 file
 # BE SURE TO READ `matching` ARG DOCSTRING DESCRIPTION
 # OF `SingleFileExtractor` CLASS
 extractor = SingleFileExtractor("data/TBI_003.hdf5",
@@ -22,14 +22,14 @@ extractor = SingleFileExtractor("data/TBI_003.hdf5",
                                 matching=True,
                                 matching_multiplier=1)
 normal_segments = extractor.get_normal()
-anomaly_segments = extractor.get_anomalies()
+anomalous_segments = extractor.get_anomalies()
 
 # print number of segments
-print(f"Normal: {len(normal_segments)} Anomalies: {len(anomaly_segments)}")
+print(f"Normal: {len(normal_segments)} Anomalies: {len(anomalous_segments)}")
 
 # plot first anomalous segment
 sr = extractor.get_frequency()
-segment = anomaly_segments[0]
+segment = anomalous_segments[0]
 
 plt.plot(segment.data)
 plt.title("First ABP anomalous segment")

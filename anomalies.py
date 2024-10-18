@@ -12,9 +12,9 @@ def main(args):
     extractor = SingleFileExtractor(hdf5_filepath,
                                     mode=mode,
                                     matching=True)
-    anomaly_segments = extractor.get_anomalies()
+    anomalous_segments = extractor.get_anomalies()
 
-    for segment in anomaly_segments:
+    for segment in anomalous_segments:
         # micro to sec
         dt = datetime.datetime.fromtimestamp(segment.start_time / 1e6, datetime.timezone.utc)
         print(f"Anomaly ({mode}) at {segment.start_time} ({dt})")
